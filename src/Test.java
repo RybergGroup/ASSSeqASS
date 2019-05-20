@@ -2,7 +2,19 @@ import java.io.*;
 import java.util.*;
 import java.util.ArrayList;
 
+
 public class Test {
+    private static void help () {
+	System.out.println("ASSSeq assemble assembels sequences given in FastQ or PHD.1 format.");
+	System.out.println();
+	System.out.println("--batch / -b will assemble contigs from different batches of sequences separately");
+	System.out.println("--files / -f give batch of sequence files, each as separate argument");
+	System.out.println("--format / -o give ouput format as ACE, FASTA, or FASTQ");
+	System.out.println("--help / -h print this help");
+	System.out.println("--lowestalignmentscore / -a lowest score for reporting contig, default 100");
+	System.out.println("--trimqual / -q trim edges to given qual value, default 15");
+	System.out.println();
+    }
     public static void main (String[] args) throws Exception {
 	int lowestAlScore = 100;
 	//int lowestDip = 75;
@@ -76,6 +88,10 @@ public class Test {
 		}
 		inputFiles.add(files);
 	    }
+	    else if (args[i].equals("--help") || args[i].equals("-h")) {
+		help();
+		System.exit(0);
+	    }
 	    else if (i == args.length -1) {
 		inputFiles.add(new ArrayList<String>(Arrays.asList(args[i])));
 	    }
@@ -99,11 +115,11 @@ public class Test {
 		char inputFormat = 'U';
 		int c;
 		while ((c=fr.read()) !=-1) {
-		    if ((char) c == '@') {
+		    if ((char) c == '@') { // FastQ format
 			inputFormat = 'Q';
 			break;
 		    }
-		    else if ((char) c == 'B' || (char) c == 'b') {
+		    else if ((char) c == 'B' || (char) c == 'b') { //PHD.1 format
 			inputFormat = 'p';
 			break;
 		    }
@@ -159,6 +175,7 @@ public class Test {
 	//////////////////////////////////
 	// Align sequences into contigs //
 	//////////////////////////////////
+	//System.err.println(sequenceBatches.length);
 	for (int b=0; b < sequenceBatches.length; ++b) {
 	    AlignedQ[] addContigs = MSAQ.align(sequenceBatches[b],trim_qual);
 	    if (contigs == null) {

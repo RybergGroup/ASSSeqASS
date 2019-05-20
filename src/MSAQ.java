@@ -25,6 +25,10 @@ public class MSAQ {
 	//////////////////////////////////////////////////////////////////////////////////
 	// Make all pairwise alignment and store the order from highest to lowest score //
 	//////////////////////////////////////////////////////////////////////////////////
+	if (sequences == null) {
+	    System.err.println("No sequences given to make contig");
+	    return null;
+	}
 	int n_pairs = getPairNo(sequences.length-2,sequences.length-1)+1;
 	System.err.println(n_pairs);	
      	AlignedQ[] pairs = new AlignedQ[n_pairs];

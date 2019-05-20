@@ -200,6 +200,9 @@ public class SequenceQ {
     }
     int getUnModQualScore( int pos ) { return qual[pos]; }
     int getUnModRevQualScore( int pos ) { return (qual[seq.length()-pos-1]); }
-    int length () { return seq.length(); }
+    int length () {
+	if (seq != null) { return seq.length();}
+	else return 0;
+    }
     
 }
