@@ -1,0 +1,5 @@
+AlignedQ.java
+ContigWriter.java
+MSAQ.java
+SequenceQ.java
+Test.java
