@@ -9,10 +9,17 @@ public class ContigWriter {
     public static void writeFASTQ (AlignedQ[] contigs, PrintStream out) throws Exception {
         writeFASTX(contigs, "FASTQ", out);
     }
+    public static void writeMFASTA (AlignedQ[] contigs, PrintStream out) throws Exception {
+        writeFASTX(contigs, "MFASTA", out);
+    }
+    public static void writeMFASTQ (AlignedQ[] contigs, PrintStream out) throws Exception {
+        writeFASTX(contigs, "MFASTQ", out);
+    }
     private static void writeFASTX ( AlignedQ[] contigs, String format, PrintStream out) throws Exception {
 	if (contigs != null) {
 	    for (AlignedQ seq: contigs) {
-    		if (format.equals("FASTQ")) out.print('@');
+		// print contig	
+    		if (format.charAt(format.length()-1)=='Q') out.print('@');
 		else out.print('>');
 		out.println(seq.getName());
 		AlignedQ.Base base;
@@ -20,18 +27,50 @@ public class ContigWriter {
 		String qualities = "";
 		for (int i = 0; i < length; ++i) {
 		    base = seq.getConBase(i);
-		    if (base.nuc != '*') {
+		    if (format.charAt(0) == 'M') {
+			if (base.nuc != '*') out.print(base.nuc);
+			else out.print('-');
+                        if (format.charAt(format.length()-1)=='Q') {
+                            if (base.qual > 93) qualities += "~";
+                            else qualities += (char) (base.qual+33);
+                        }
+		    }
+		    else if (base.nuc != '*') {
 			out.print(base.nuc);
-			if (format.equals("FASTQ")) {
+			if (format.charAt(format.length()-1)=='Q') {
 			    if (base.qual > 93) qualities += "~";
 			    else qualities += (char) (base.qual+33);
 			}
 		    }
 		}
 		out.println("");
-		if (format.equals("FASTQ")) {
+		if (format.charAt(format.length()-1)=='Q') {
 		    out.println("+");
 		    out.println(qualities);
+		}
+		if (format.charAt(0) == 'M') {
+		    String[] names = seq.getSequenceNames();
+		    for (int read = 0; read < seq.getNseq(); ++read) {
+			qualities = "";
+			if (format.charAt(format.length()-1)=='Q') out.print('@');
+			else out.print('>');
+			out.println(names[read]);
+			for (int i = 0; i < length; ++i) {
+			    char nuc = seq.getBase(read,i);
+			    int qual = seq.getBaseQual(read,i);
+			    if (nuc == '*') out.print('-');
+			    else out.print(nuc);
+			    if (format.charAt(format.length()-1)=='Q') {
+				if (qual > 93) qualities += "~";
+				else qualities += (char) (qual+33);
+			    }
+			}
+			out.println("");
+			if (format.charAt(format.length()-1)=='Q') {
+	 		    out.println("+");
+			    out.println(qualities);
+			}
+		    }
 		}
 	    }
 	}

@@ -44,12 +44,6 @@ public class AlignedQ {
 	}
 	this.name = seqs[0].name;
     }
-/*    AlignedQ (SequenceQ[] seqs, int[][] pos, boolean[] rev) {
-	sequences = seqs;
-	positions = pos;
-	revcomp = rev;
-	name = seqs[0].getFileName();
-    }*/
     AlignedQ(SequenceQ one, boolean rev, int trimQual) {
 	score = 0;
 	sequences = new SequenceQ[1];
@@ -213,6 +207,10 @@ public class AlignedQ {
     char getBase (int seq, int pos) {
 	if (positions[seq][pos] < 0) return '*';
 	else return sequences[seq].getBase(positions[seq][pos],revcomp[seq]);
+    }
+    int getBaseQual (int seq, int pos) {
+	if (positions[seq][pos] < 0) return 0;
+	else return sequences[seq].getQualScore(positions[seq][pos],revcomp[seq]);
     }
     int getGapScore(int seq, int pos, boolean rev) {
 	if (positions[seq][pos] >= 0) return 0;

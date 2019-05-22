@@ -40,6 +40,12 @@ public class Test {
 		    else if (args[i].toUpperCase().equals("FASTQ")) {
                         output_format = "FASTQ";
                     }
+		    else if (args[i].toUpperCase().equals("MFASTA")) {
+                        output_format = "MFASTA";
+                    }
+		    else if (args[i].toUpperCase().equals("MFASTQ")) {
+                        output_format = "MFASTQ";
+                    }
 		    else {
 			System.err.println(args[i] + " is not a supported output file format.");
 			System.exit(1);
@@ -195,5 +201,7 @@ public class Test {
      	if (output_format.equals("ACE")) { ContigWriter.writeACE(contigs,System.out); }
 	else if (output_format.equals("FASTA")) { ContigWriter.writeFASTA(contigs,System.out); }
 	else if (output_format.equals("FASTQ")) { ContigWriter.writeFASTQ(contigs,System.out); }
+	else if (output_format.equals("MFASTA")) { ContigWriter.writeMFASTA(contigs,System.out); }
+	else if (output_format.equals("MFASTQ")) { ContigWriter.writeMFASTQ(contigs,System.out); }
     }
 }
