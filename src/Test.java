@@ -68,15 +68,6 @@ public class Test {
 		    System.exit(1);
 		}
 	    }
-	    /*else if (args[i].equals("--lowestvally") || args[i].equals("-v")) {
-                if (i+1 < args.length && args[++i].charAt(0) != '-') {
-                    lowestDip = Integer.parseInt(args[i]);
-                }
-                else {
-                    System.err.println("--lowestvally / -l require an integer as next argument.");
-                    System.exit(1);
-                }
-            }*/
 	    else if (args[i].equals("--lowestalignmentscore") || args[i].equals("-a")) {
                 if (i+1 < args.length && args[++i].charAt(0) != '-') {
                     lowestAlScore = Integer.parseInt(args[i]);
@@ -167,23 +158,13 @@ public class Test {
 		    System.arraycopy(sequences,0,temp,sequenceBatches[0].length,sequences.length);
 		    sequenceBatches[0] = temp;
 		}
-		/*if (sequenceBatches.isEmpty()) {
-		    sequenceBatches.add(sequences);
-		}
-		else {
-		    SequenceQ[] temp = SequenceQ[sequenceBatches.get(0).length+sequences.length]
-		    System.arraycopy(sequenceBatches.get(0),0,temp,0,sequenceBatches.get(0).length);
-		    System.arraycopy(sequences,0,temp,sequenceBatches.get(0).length,sequences.length);
-		    sequenceBatches.get(0).addAll(sequences);
-		}*/
 	    }
 	}
 	//////////////////////////////////
 	// Align sequences into contigs //
 	//////////////////////////////////
-	//System.err.println(sequenceBatches.length);
 	for (int b=0; b < sequenceBatches.length; ++b) {
-	    AlignedQ[] addContigs = MSAQ.align(sequenceBatches[b],trim_qual);
+	    AlignedQ[] addContigs = MSAQ.align(sequenceBatches[b],trim_qual); // Do Multiple Sequence Alignment considering quality scores
 	    if (contigs == null) {
 		contigs = addContigs;
 	    }
@@ -194,7 +175,6 @@ public class Test {
 		contigs = newContigs;
 	    }
 	}
-	//System.out.println(contigs.length);
 	//////////////////
 	// Print output //
 	//////////////////

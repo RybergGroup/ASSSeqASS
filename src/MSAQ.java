@@ -30,7 +30,7 @@ public class MSAQ {
 	    return null;
 	}
 	int n_pairs = getPairNo(sequences.length-2,sequences.length-1)+1;
-	System.err.println(n_pairs);	
+	//System.err.println(n_pairs);	
      	AlignedQ[] pairs = new AlignedQ[n_pairs];
 	int pos = 0;
 	int [] scoreOrder = new int[pairs.length];
@@ -38,8 +38,6 @@ public class MSAQ {
 	scoreOrder[0] = 0;
  	for (int i=0; i < sequences.length; ++i) {
 	    for (int j=i+1; j < sequences.length; ++j) {
-		//AlignQpair temp = new AlignQpair(sequences[i],sequences[j],trim_qual);
-		//System.err.println(i + " " + j + " " + pos);
 		pairs[pos] = AlignedQ.align(new AlignedQ(sequences[i],trim_qual), new AlignedQ(sequences[j],trim_qual));
 		for (int k = pos; k > 0; --k) {
 		    if (pairs[scoreOrder[k-1]].getScore() > pairs[pos].getScore()) { scoreOrder[k] = pos; }
@@ -51,7 +49,7 @@ public class MSAQ {
 		++pos;
 	    }
 	}
-	for (int i=0; i < scoreOrder.length; ++i) { System.err.println("Order: " + scoreOrder[i]); }
+	//for (int i=0; i < scoreOrder.length; ++i) { System.err.println("Order: " + scoreOrder[i]); }
 	//////////////////////////////////////////////
 	// Build contig in order of pairwise scores //
 	//////////////////////////////////////////////
@@ -59,18 +57,18 @@ public class MSAQ {
 	int[][] included_seq = null;
 	for (int i=0; i < scoreOrder.length; ++i) {
 	    if (scoreOrder[i] >= 0) {
-		System.err.println("Processing pairwise alignment: " + scoreOrder[i]);
+		System.err.println("Processing pairwise alignment: " + scoreOrder[i]+1);
 		if (return_alignments == null) { // if first alignment
-		    System.err.println("Add first alignment: " + scoreOrder[i]);
+		    //System.err.println("Add first alignment: " + scoreOrder[i]);
 		    return_alignments = new AlignedQ[1];
                     return_alignments[0] = pairs[scoreOrder[i]];
 		    included_seq = new int[1][];
 		    included_seq[0] = getSeqNo(scoreOrder[i],sequences.length);
-		    System.err.println("Including sequences: " + included_seq[0][0] + " " + included_seq[0][1]);
+		    //System.err.println("Including sequences: " + included_seq[0][0] + " " + included_seq[0][1]);
 		}
 		else {
 		    int[] inAliToAdd = getSeqNo(scoreOrder[i],sequences.length);
-		    System.err.println("Checking sequences: " + inAliToAdd[0] + " " + inAliToAdd[1]);
+		    //System.err.println("Checking sequences: " + inAliToAdd[0] + " " + inAliToAdd[1]);
 		    int[] inAli = {-1,-1};
 		    boolean flag = true;
 		    for (int ali=0; ali < included_seq.length; ++ali) {
@@ -83,11 +81,14 @@ public class MSAQ {
                             }
 			}
 		    }
-		    System.err.println("Sequence " + inAliToAdd[0] + " was found in " + inAli[0] + ", and " + inAliToAdd[1] + " found in " + inAli[1]);
-		    if (inAli[0] == inAli[1]) { System.err.println("Both seqs already in: " + inAli[1]); continue; }
+		    //System.err.println("Sequence " + inAliToAdd[0] + " was found in " + inAli[0] + ", and " + inAliToAdd[1] + " found in " + inAli[1]);
+		    if (inAli[0] == inAli[1]) {
+			//System.err.println("Both seqs already in: " + inAli[1]);
+			continue;
+		    }
 		    if (inAli[0] < 0 && inAli[1] < 0) {
 			// if no overlapp in sequences with previous contigs, add as new alignment
-			System.err.println("Add another alignment: " + scoreOrder[i]);
+			//System.err.println("Add another alignment: " + scoreOrder[i]);
 			AlignedQ[] temp = new AlignedQ[return_alignments.length+1];
 			for (int j = 0; j < return_alignments.length; ++j) {
                             temp[j] = return_alignments[j];
@@ -103,7 +104,7 @@ public class MSAQ {
 		    }
 		    else if (inAli[0] >= 0 && inAli[1] >= 0) {
 			// if sequences in different alignments merge alignments
-			System.err.println("Mearge alignment: " + inAli[0] + " and " + inAli[1]);
+			//System.err.println("Mearge alignment: " + inAli[0] + " and " + inAli[1]);
 			//AlignQpair temp = new AlignQpair(return_alignments[inAli[0]],return_alignments[inAli[1]]);
 			AlignedQ newAli = AlignedQ.align(return_alignments[inAli[0]],return_alignments[inAli[1]]);
 			int[] new_included_seq = new int[included_seq[inAli[0]].length+included_seq[inAli[1]].length];
@@ -132,7 +133,7 @@ public class MSAQ {
 			int includeSeq = -1;
 			if(inAli[0] >= 0) { includeIn = inAli[0]; includeSeq = inAliToAdd[1]; }
 			else { includeIn = inAli[1]; includeSeq = inAliToAdd[0]; }
-			System.err.println("Add sequence " + includeSeq + " to alignment " + includeIn);
+			//System.err.println("Add sequence " + includeSeq + " to alignment " + includeIn);
 			//AlignQpair temp = new AlignQpair(return_alignments[includeIn],new AlignedQ(sequences[includeSeq],trim_qual));
 			return_alignments[includeIn] = AlignedQ.align(return_alignments[includeIn],new AlignedQ(sequences[includeSeq],trim_qual));
 			int [] tempSeqs = new int [included_seq[includeIn].length+1];

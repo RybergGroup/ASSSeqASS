@@ -16,7 +16,7 @@ public class AlignedQ {
     private SequenceQ[] sequences;
     private int[][] positions;
     private boolean[] revcomp;
-    private String name;
+    //private String name;
     private int score;
     AlignedQ (AlignedQ[] seqs, int[][] pos, boolean[] rev, int score) {
 	this.score =score;
@@ -42,7 +42,7 @@ public class AlignedQ {
 		++n_seq;
 	    }
 	}
-	this.name = seqs[0].name;
+	//this.name = seqs[0].name;
     }
     AlignedQ(SequenceQ one, boolean rev, int trimQual) {
 	score = 0;
@@ -52,21 +52,27 @@ public class AlignedQ {
 	revcomp[0] = rev;
 	int seqlength = one.length();
 	int start=0;
-	for (int i=0; i<one.length();++i) {
+	//System.err.println(one.getID());
+	for (int i=0; i<one.length(); ++i) {
 	    if (sequences[0].getQualScore(i, rev) > trimQual) {start=i; break;}
-	    else --seqlength;
+	    else {
+	       	--seqlength;
+		//System.err.println("Trimming start, qual: " + sequences[0].getQualScore(i, rev));
+	    }
 	}
+	//System.err.println(one.getID());
 	for (int i=one.length()-1; i>=0; --i) {
 	    if (sequences[0].getQualScore(i, rev) > trimQual) break;
-	    else --seqlength;
+	    else {
+	       	--seqlength;
+		//System.err.println("Trimming end, qual: " + sequences[0].getQualScore(i, rev));
+	    }
 	}
-	//System.err.println(start + " " + seqlength);
 	positions = new int[1][seqlength];
 	for (int i=0; i < seqlength; ++i) {
 		positions[0][i]=i+start;
 	}
-	//System.err.println(positions[0][0] +" " + positions[0][seqlength-1]);
-	name = one.getFileName();
+	//System.err.println(getConSequence());
     }
     AlignedQ(SequenceQ one, int trimQual) {
 	this(one,false, trimQual);
@@ -250,7 +256,7 @@ public class AlignedQ {
 	int end = getEndInAlignment(seq);
 	return positions[seq][start] + end - start + sequences[seq].length() - positions[seq][end];
     }
-    String getName() { return name; }
+    //String getName() { return name; }
     SequenceQ getSequence(int seq) {
 	if (seq >= sequences.length) { return null; }
 	return sequences[seq];
@@ -421,10 +427,6 @@ public class AlignedQ {
 	int startI = bestScores.endI;
 	int startJ = bestScores.endJ;
 	ArrayList<Integer[]> alignmentPath = new ArrayList<Integer[]>();
-	//int prevScore = bestScores.maxScore;
-	//int totRevScore = 0;
-	//int maxRevScore = 0;
-	//int posFromEnd = 0; 
 	while (startI >= 0 && startJ >= 0 && bestScores.scoreMatrix[startI][startJ] > 0) {
 	    Integer [] temp = {startI, startJ, bestScores.scoreMatrix[startI][startJ]};
 	    alignmentPath.add(temp);
