@@ -130,7 +130,7 @@ public class SequenceQ {
 	}
 	else { return 0; }
     }
-    public char compBase ( char base ) {
+    static public char compBase ( char base ) {
     	if (base == 'a') { return 't'; }
 	else if (base == 'A') { return 'T'; }
 	else if (base == 't') { return 'a'; }

@@ -35,7 +35,6 @@ public class Test {
 		    }
 		    else if (args[i].toUpperCase().equals("FASTA")) {
 			output_format = "FASTA";
-			//System.err.println("Tjim");
 		    }
 		    else if (args[i].toUpperCase().equals("FASTQ")) {
                         output_format = "FASTQ";

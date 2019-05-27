@@ -25,24 +25,30 @@ public class AlignedQ {
 	    n_seq += seqs[i].nSeq();
 	}
 	//System.out.println("N seqs: " + n_seq);
+	System.err.println("Length contig = " + pos[0].length);
 	this.sequences = new SequenceQ[n_seq];
 	this.positions = new int[n_seq][pos[0].length];
 	this.revcomp = new boolean[n_seq];
 	n_seq=0; // for indexing
 	for (int i=0; i < seqs.length; ++i) {
 	    for (int j=0; j < seqs[i].sequences.length; ++j) {
-		//System.out.println(i + " " +j);
+		System.err.println(seqs[i].sequences[j].getID());
 		this.sequences[n_seq] = seqs[i].sequences[j];
 		this.revcomp[n_seq] = (rev[i] && !seqs[i].revcomp[j]) || (!rev[i] && seqs[i].revcomp[j]);
 		for (int k=0; k < pos[i].length; ++k) {
-		    if (pos[i][k] < 0) this.positions[n_seq][k] = pos[i][k];
-		    else this.positions[n_seq][k] = seqs[i].positions[j][pos[i][k]];
-		    //System.err.println(k + " " + pos[i][k] + " " +positions[i*n_seq+j][k]);
-		}
+		    if (rev[i]) {
+			if (pos[i][k] < 0) this.positions[n_seq][k] = pos[i][k];
+			else this.positions[n_seq][k] = seqs[i].sequences[j].length()-1-seqs[i].positions[j][seqs[i].positions[j].length-1-pos[i][k]];
+			System.err.println(this.positions[n_seq][k]);
+		    }
+		    else {
+			if (pos[i][k] < 0) this.positions[n_seq][k] = pos[i][k];
+			else this.positions[n_seq][k] = seqs[i].positions[j][pos[i][k]];
+    		    }
+	    	}
 		++n_seq;
 	    }
 	}
-	//this.name = seqs[0].name;
     }
     AlignedQ(SequenceQ one, boolean rev, int trimQual) {
 	score = 0;
@@ -52,12 +58,13 @@ public class AlignedQ {
 	revcomp[0] = rev;
 	int seqlength = one.length();
 	int start=0;
-	//System.err.println(one.getID());
+	//System.err.println(seqlength);
+	System.err.println(one.getID());
 	for (int i=0; i<one.length(); ++i) {
 	    if (sequences[0].getQualScore(i, rev) > trimQual) {start=i; break;}
 	    else {
 	       	--seqlength;
-		//System.err.println("Trimming start, qual: " + sequences[0].getQualScore(i, rev));
+		//System.err.println("Trimming start (" + sequences[0].getBase(i, rev) + "), qual: " + sequences[0].getQualScore(i, rev));
 	    }
 	}
 	//System.err.println(one.getID());
@@ -65,14 +72,17 @@ public class AlignedQ {
 	    if (sequences[0].getQualScore(i, rev) > trimQual) break;
 	    else {
 	       	--seqlength;
-		//System.err.println("Trimming end, qual: " + sequences[0].getQualScore(i, rev));
+		//System.err.println("Trimming end (" + sequences[0].getBase(i, rev) + "), qual: " + sequences[0].getQualScore(i, rev));
 	    }
 	}
+	//System.err.println(seqlength + " " + start);
 	positions = new int[1][seqlength];
 	for (int i=0; i < seqlength; ++i) {
 		positions[0][i]=i+start;
+		//System.err.print(i+start + "(" +i + ":" + sequences[0].getQualScore(i+start, rev) + ")" + sequences[0].getBase(i+start, rev) + " ");
 	}
-	//System.err.println(getConSequence());
+	//System.err.println("");
+	System.err.println(getConSequence(rev));
     }
     AlignedQ(SequenceQ one, int trimQual) {
 	this(one,false, trimQual);
@@ -126,6 +136,10 @@ public class AlignedQ {
 	}
 	return sequences[n].length();
     }
+    int getPosInSeq(int n, int pos) {
+	if (pos >= 0 && pos < positions[n].length) return positions[n][pos];
+	else return -1;
+    }
     int getEndInSeq(int n) {
 	for (int i=positions[n].length-1; i>=0; --i) {
 	    if (positions[n][i] >= 0) return positions[n][i];
@@ -144,9 +158,6 @@ public class AlignedQ {
 	}
 	return -1;
     }
-    Base getConBase (int pos) {
-	return getConBase(pos, false);
-    }
     int[] getFirsts () {
 	int[] numb = new int[positions.length];
 	for (int i = 0; i < positions.length; ++i) {
@@ -154,7 +165,10 @@ public class AlignedQ {
 	}
 	return numb;
     }
-    Base getConBase (int pos, boolean rev) {
+    Base getConBase (int pos) {
+	return getConBase(pos, false);
+    }
+    Base getConBase (int pos, boolean revComp) {
 	int G = 0;
 	int C = 0;
 	int T = 0;
@@ -162,16 +176,28 @@ public class AlignedQ {
 	int gap = 0;
 	char base;
 	int qual = 0;
+	if (revComp) pos = this.length()-1-pos;
 	for (int i=0; i < positions.length; ++i) {
 	    if (positions[i][pos] >= 0) {
-		if ((revcomp[i] && !rev) || (!revcomp[i] && rev)) {
+		if (revcomp[i]) {
+		    base = sequences[i].getRevCompBase(positions[i][pos]);
+                    qual = sequences[i].getRevQualScore(positions[i][pos]);
+                }
+		else {
+                    base = sequences[i].getBase(positions[i][pos]);
+                    qual = sequences[i].getQualScore(positions[i][pos]);
+                }
+		if (revComp) { base = SequenceQ.compBase(base); }
+		/*//System.err.print(positions[i][pos] + " ");
+		if ((revcomp[i] && !comp) || (!revcomp[i] && comp)) { 
 		    base = sequences[i].getRevCompBase(positions[i][pos]);
 		    qual = sequences[i].getRevQualScore(positions[i][pos]);
 		}
 		else {
 		    base = sequences[i].getBase(positions[i][pos]);
 		    qual = sequences[i].getQualScore(positions[i][pos]);
-		}
+		}*/
+		
 		if (base=='G' || base=='g') {
 		    G+=qual;
 		}
@@ -186,27 +212,32 @@ public class AlignedQ {
 		}
 		else {
 		    System.err.print("Unknown char '" + base + "' at position " + positions[i][pos]);
-		    if ((revcomp[i] && !rev) || (!revcomp[i] && rev)) System.err.print(" (revcomp)");
+		    if ((revcomp[i] && !revComp) || (!revcomp[i] && revComp)) System.err.print(" (revcomp)");
 		    System.err.println(" in sequence " + sequences[i].getFileName());
 		}
 	    }
 	    else {
-		gap += getGapScore(i, pos, rev);
+		gap += getGapScore(i, pos, revComp);
 	    }
 	}
 	if (gap >= G && gap >= C && gap >= T && gap >= A) {
+	    //System.err.println('*');
 	    return new Base('*', gap-G-T-A-C);
 	}
     	else if (G >= C && G >=T && G >= A && G>gap) {
+	    //System.err.println('G');
 	    return new Base('G',G-T-A-C-gap);
 	}
 	else if (C >=T && C >= A && C > G && C > gap) {
+	    //System.err.println('C');
 	    return new Base('C',C-T-G-A-gap);
 	}
 	else if (T >=A && T > C && T > A && T > gap) {
+	    //System.err.println('T');
 	    return new Base('T',T-A-C-G-gap);
 	}
 	else {
+	    //System.err.println('A');
 	    return new Base('A',A-G-T-C-gap);
 	}
     }
@@ -287,6 +318,14 @@ public class AlignedQ {
     public int getScore () { return this.score; }
     public int getNseq () { return sequences.length; }
     public static AlignedQ align ( AlignedQ sequenceOne, AlignedQ sequenceTwo) {
+	System.err.println("Seq one");
+	System.err.println(sequenceOne.getConSequence(false));
+	System.err.println("rev");
+	System.err.println(sequenceOne.getConSequence(true));
+	System.err.println("Seq two");
+	System.err.println(sequenceTwo.getConSequence(false));
+	System.err.println("rev");
+	System.err.println(sequenceTwo.getConSequence(true));
 	class AlignmentScores {
 	    int [][] scoreMatrix;
 	    int [][] prevOne;
@@ -410,12 +449,12 @@ public class AlignedQ {
 	///////////////////////////////////////////////////
 	boolean[] revcomp = {false,false};
 	AlignmentScores bestScores;
+	System.err.println("For score: " + forScores.maxScore + " (" + forScores.endI + "," + forScores.endJ + ")");
+	System.err.println("Rev score: " + revScores.maxScore + " (" + revScores.endI + "," + revScores.endJ + ")");
 	if (forScores.maxScore >= revScores.maxScore) {
-	    //System.err.println("Best score: " + forScores.maxScore + " (" + forScores.endI + "," + forScores.endJ + ")");
 	    bestScores = forScores;
 	}
 	else {
-	    //System.err.println("Rev best, score: " + revScores.maxScore + " (" + revScores.endI + "," + revScores.endJ + ")");
 	    revcomp[1] = true;
 	    bestScores = revScores;
 	}
@@ -435,7 +474,6 @@ public class AlignedQ {
 	    startI = bestScores.prevOne[prevI][prevJ];
 	    startJ = bestScores.prevTwo[prevI][prevJ];
 	}
-	//System.err.println("Alignment length: " + alignmentPath.size() + " slope: " + (1.0*(alignmentPath.get(0)[2]-alignmentPath.get(alignmentPath.size()-1)[2])/alignmentPath.size()));
 	////////////////////
 	// Trim alignment //
 	////////////////////
@@ -443,29 +481,23 @@ public class AlignedQ {
 	int trimFrom = 0;
 	double cut_off = (alignmentPath.get(0)[2]-alignmentPath.get(alignmentPath.size()-1)[2])/(2.0*alignmentPath.size());
 	for (int i=0; i < alignmentPath.size(); ++i) {
-	    //System.err.println(i + "| i: " + alignmentPath.get(i)[0] + " j: " + alignmentPath.get(i)[1] + " score: " + alignmentPath.get(i)[2] + " slope back: " + ((alignmentPath.get(0)[2] - alignmentPath.get(i)[2])/ (i+1.0)) + " slope front: " + ((alignmentPath.get(i)[2] - alignmentPath.get(alignmentPath.size()-1)[2])/ (alignmentPath.size()-i*1.0)));
 	    if (((alignmentPath.get(0)[2] - alignmentPath.get(i)[2])/ (i+1.0)) < cut_off) trimFrom = i;
 	    if (trimTo == 0 && ((alignmentPath.get(i)[2] - alignmentPath.get(alignmentPath.size()-1)[2]) / (alignmentPath.size()-i*1.0)) < cut_off) trimTo = i;
-	    /*if (alignmentPath.get(i)[2] > prevScore + minVal) {
-		System.err.println("Ending on: " + (prevScore + minVal));
-		trimTo = i;
-		break;
-	    }
-	    else if (alignmentPath.get(i)[2] < prevScore) { prevScore = alignmentPath.get(i)[2]; }*/
-	    //prevScore = alignmentPath.get(i)[2];
 	}
-	//System.err.println("Trim to: " + trimTo + " trim from: " + trimFrom);
 	if (trimTo-trimFrom > 10) {
 	    while (alignmentPath.size()-1 > trimTo) { alignmentPath.remove(alignmentPath.size()-1); }
 	    while (trimFrom > 0) { alignmentPath.remove(0); --trimFrom; }
 	}
-	//System.err.println("Alignment length: " + alignmentPath.size() + ", Score: " + (alignmentPath.get(0)[2]-alignmentPath.get(alignmentPath.size()-1)[2]));
 	int score = (alignmentPath.get(0)[2]-alignmentPath.get(alignmentPath.size()-1)[2]);
 	/////////////////////////
 	// Put contig together //
 	/////////////////////////////////////
 	// Add best seq after aligned part //
 	/////////////////////////////////////
+	System.err.println("Seq one");
+	System.err.println(sequenceOne.getConSequence(revcomp[0]));
+	System.err.println("Seq Two");
+	System.err.println(sequenceTwo.getConSequence(revcomp[1]));
 	ArrayList<Integer> posInI = new ArrayList<Integer>();
     	ArrayList<Integer> posInJ = new ArrayList<Integer>();
 	int AccQualI = getWeightedQual(bestScores.endI,sequenceOne.length(),sequenceOne,revcomp[0]);
@@ -531,6 +563,7 @@ public class AlignedQ {
 		    posInJ.add(pos);
 		    posInI.add(-1);
 		}
+		//System.err.println(pos + "(" + two.nuc + ":" + two.qual + "): " + posInI.get(posInI.size()-1) + " " + posInJ.get(posInJ.size()-1));
 	    }
 	}
 	//////////////////////////////
@@ -541,7 +574,7 @@ public class AlignedQ {
 	AlignedQ[] pair = {sequenceOne,sequenceTwo};
      	int[][] pos = new int[2][posInI.size()];
 	for (int i = 0; i < posInI.size(); ++i) {
-	    //System.out.println((posInI.size()-1-i) + ": " + posInI.get(posInI.size()-1-i) + " " + posInJ.get(posInJ.size()-1-i));
+	    //System.out.println(i + ": " + sequenceOne.getPosInSeq(0,posInI.get(posInI.size()-1-i)) + " " + sequenceTwo.getPosInSeq(0,posInJ.get(posInJ.size()-1-i)));
 	    pos[0][i] = posInI.get(posInI.size()-1-i);
 	    pos[1][i] = posInJ.get(posInJ.size()-1-i);
 	}
