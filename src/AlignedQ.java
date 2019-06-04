@@ -25,21 +25,21 @@ public class AlignedQ {
 	    n_seq += seqs[i].nSeq();
 	}
 	//System.out.println("N seqs: " + n_seq);
-	System.err.println("Length contig = " + pos[0].length);
+	//System.err.println("Length contig = " + pos[0].length);
 	this.sequences = new SequenceQ[n_seq];
 	this.positions = new int[n_seq][pos[0].length];
 	this.revcomp = new boolean[n_seq];
 	n_seq=0; // for indexing
 	for (int i=0; i < seqs.length; ++i) {
 	    for (int j=0; j < seqs[i].sequences.length; ++j) {
-		System.err.println(seqs[i].sequences[j].getID());
+		//System.err.println(seqs[i].sequences[j].getID());
 		this.sequences[n_seq] = seqs[i].sequences[j];
 		this.revcomp[n_seq] = (rev[i] && !seqs[i].revcomp[j]) || (!rev[i] && seqs[i].revcomp[j]);
 		for (int k=0; k < pos[i].length; ++k) {
 		    if (rev[i]) {
 			if (pos[i][k] < 0) this.positions[n_seq][k] = pos[i][k];
 			else this.positions[n_seq][k] = seqs[i].sequences[j].length()-1-seqs[i].positions[j][seqs[i].positions[j].length-1-pos[i][k]];
-			System.err.println(this.positions[n_seq][k]);
+			//System.err.println(this.positions[n_seq][k]);
 		    }
 		    else {
 			if (pos[i][k] < 0) this.positions[n_seq][k] = pos[i][k];
@@ -59,7 +59,7 @@ public class AlignedQ {
 	int seqlength = one.length();
 	int start=0;
 	//System.err.println(seqlength);
-	System.err.println(one.getID());
+	//System.err.println(one.getID());
 	for (int i=0; i<one.length(); ++i) {
 	    if (sequences[0].getQualScore(i, rev) > trimQual) {start=i; break;}
 	    else {
@@ -82,7 +82,7 @@ public class AlignedQ {
 		//System.err.print(i+start + "(" +i + ":" + sequences[0].getQualScore(i+start, rev) + ")" + sequences[0].getBase(i+start, rev) + " ");
 	}
 	//System.err.println("");
-	System.err.println(getConSequence(rev));
+	//System.err.println(getConSequence(rev));
     }
     AlignedQ(SequenceQ one, int trimQual) {
 	this(one,false, trimQual);
@@ -318,14 +318,14 @@ public class AlignedQ {
     public int getScore () { return this.score; }
     public int getNseq () { return sequences.length; }
     public static AlignedQ align ( AlignedQ sequenceOne, AlignedQ sequenceTwo) {
-	System.err.println("Seq one");
+	/*System.err.println("Seq one");
 	System.err.println(sequenceOne.getConSequence(false));
 	System.err.println("rev");
 	System.err.println(sequenceOne.getConSequence(true));
 	System.err.println("Seq two");
 	System.err.println(sequenceTwo.getConSequence(false));
 	System.err.println("rev");
-	System.err.println(sequenceTwo.getConSequence(true));
+	System.err.println(sequenceTwo.getConSequence(true));*/
 	class AlignmentScores {
 	    int [][] scoreMatrix;
 	    int [][] prevOne;
@@ -449,8 +449,8 @@ public class AlignedQ {
 	///////////////////////////////////////////////////
 	boolean[] revcomp = {false,false};
 	AlignmentScores bestScores;
-	System.err.println("For score: " + forScores.maxScore + " (" + forScores.endI + "," + forScores.endJ + ")");
-	System.err.println("Rev score: " + revScores.maxScore + " (" + revScores.endI + "," + revScores.endJ + ")");
+	//System.err.println("For score: " + forScores.maxScore + " (" + forScores.endI + "," + forScores.endJ + ")");
+	//System.err.println("Rev score: " + revScores.maxScore + " (" + revScores.endI + "," + revScores.endJ + ")");
 	if (forScores.maxScore >= revScores.maxScore) {
 	    bestScores = forScores;
 	}
@@ -494,10 +494,10 @@ public class AlignedQ {
 	/////////////////////////////////////
 	// Add best seq after aligned part //
 	/////////////////////////////////////
-	System.err.println("Seq one");
-	System.err.println(sequenceOne.getConSequence(revcomp[0]));
-	System.err.println("Seq Two");
-	System.err.println(sequenceTwo.getConSequence(revcomp[1]));
+	//System.err.println("Seq one");
+	//System.err.println(sequenceOne.getConSequence(revcomp[0]));
+	//System.err.println("Seq Two");
+	//System.err.println(sequenceTwo.getConSequence(revcomp[1]));
 	ArrayList<Integer> posInI = new ArrayList<Integer>();
     	ArrayList<Integer> posInJ = new ArrayList<Integer>();
 	int AccQualI = getWeightedQual(bestScores.endI,sequenceOne.length(),sequenceOne,revcomp[0]);
