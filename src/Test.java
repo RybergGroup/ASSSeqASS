@@ -132,7 +132,18 @@ public class Test {
 			    ++j;
 			}
 			else seq = new SequenceQ(fr, name);
-			if (seq.length()>0) sequences[added++] = seq;
+			//System.err.println(added);
+			if (seq.length()>0) {
+			    if (added >= sequences.length) {
+				SequenceQ[] temp = new SequenceQ[sequences.length+1];
+				for (int k=0; k < sequences.length; ++k) {
+				    temp[k] = sequences[k];
+				}
+				sequences = temp;
+			    }
+			    sequences[added] = seq;
+			    ++added;
+			}
 		    }
 		}
 		else if (inputFormat == 'p') {
