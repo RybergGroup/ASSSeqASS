@@ -148,7 +148,7 @@ public class MSAQ {
 		}
 	    }
        	}
-	System.err.println("Number of sequences in final alignment: " + return_alignments[0].getNseq());
+	//System.err.println("Number of sequences in final alignment: " + return_alignments[0].getNseq());
 	return return_alignments;
     }
 }
