@@ -3,27 +3,49 @@ import java.util.ArrayList;
 
 
 public class ContigWriter {
+    public static void writeFASTA (AlignedQ[] contigs, String [] contigNames, PrintStream out) throws Exception {
+	writeFASTX(contigs, contigNames, "FASTA", out);
+    }
     public static void writeFASTA (AlignedQ[] contigs, PrintStream out) throws Exception {
-	writeFASTX(contigs, "FASTA", out);
+	String [] contigNames = new String[contigs.length];
+	for (int i=0; i < contigs.length; ++i) contigNames[i] = "Contig_" + i;
+	writeFASTX(contigs, contigNames, "FASTA", out);
+    }
+    public static void writeFASTQ (AlignedQ[] contigs, String [] contigNames, PrintStream out) throws Exception {
+        writeFASTX(contigs, contigNames, "FASTQ", out);
     }
     public static void writeFASTQ (AlignedQ[] contigs, PrintStream out) throws Exception {
-        writeFASTX(contigs, "FASTQ", out);
+	String [] contigNames = new String[contigs.length];
+	for (int i=0; i < contigs.length; ++i) contigNames[i] = "Contig_" + i;
+        writeFASTX(contigs, contigNames, "FASTQ", out);
+    }
+    public static void writeMFASTA (AlignedQ[] contigs, String [] contigNames, PrintStream out) throws Exception {
+        writeFASTX(contigs, contigNames, "MFASTA", out);
     }
     public static void writeMFASTA (AlignedQ[] contigs, PrintStream out) throws Exception {
-        writeFASTX(contigs, "MFASTA", out);
+	String [] contigNames = new String[contigs.length];
+	for (int i=0; i < contigs.length; ++i) contigNames[i] = "Contig_" + i;
+        writeFASTX(contigs, contigNames, "MFASTA", out);
+    }
+    public static void writeMFASTQ (AlignedQ[] contigs, String [] contigNames, PrintStream out) throws Exception {
+        writeFASTX(contigs, contigNames, "MFASTQ", out);
     }
     public static void writeMFASTQ (AlignedQ[] contigs, PrintStream out) throws Exception {
-        writeFASTX(contigs, "MFASTQ", out);
+	String [] contigNames = new String[contigs.length];
+	for (int i=0; i < contigs.length; ++i) contigNames[i] = "Contig_" + i;
+        writeFASTX(contigs, contigNames, "MFASTQ", out);
     }
-    private static void writeFASTX ( AlignedQ[] contigs, String format, PrintStream out) throws Exception {
-	if (contigs != null) {
-	    int contig_no = 0;
+    private static void writeFASTX ( AlignedQ[] contigs, String[] contigNames, String format, PrintStream out) throws Exception {
+	if (contigs != null && contigNames!= null) {
+	    int contigNo = 0;
 	    for (AlignedQ seq: contigs) {
 		// print contig	
-		++contig_no;
     		if (format.charAt(format.length()-1)=='Q') out.print('@');
 		else out.print('>');
-		out.println("Contig" + contig_no);
+		if (contigNo < contigNames.length) out.println(contigNames[contigNo]);
+		else out.println("null");
+		++contigNo;
+		//out.println("Contig" + contigNo);
 		AlignedQ.Base base;
 		int length = seq.length();
 		String qualities = "";
@@ -95,19 +117,25 @@ public class ContigWriter {
 	    }
 	}
     }
-    public static void writeACE (AlignedQ[] contigs, PrintStream out) throws Exception {
+    public static void writeACE (AlignedQ[] contigs, String[] contigNames, PrintStream out) throws Exception {
 	if (contigs == null) return;
+	if (contigNames == null) {
+	    contigNames = new String[contigs.length];
+	    for (int i=0; i < contigs.length; ++i) contigNames[i] = "Contig_" + i;
+	}
 	int n_seq = 0;
-	int contig_no = 0;
+	int contigNo = 0;
 	for (AlignedQ i : contigs) {
 	    n_seq += i.nSeq();
 	}
 	out.println("AS " + contigs.length + " " + n_seq);
 	for (AlignedQ i : contigs) {
 	    int [] numb = i.getFirsts();
-	    ++contig_no;
 	    out.println("");
-	    out.print("CO Contig" + contig_no + " " + i.length() + " " + i.nSeq() + " ");
+	    if (contigNo < contigNames.length) out.print("CO " + contigNames[contigNo]);
+	    else out.print("CO null");
+	    ++contigNo;
+	    out.print(" " + i.length() + " " + i.nSeq() + " ");
 	    ArrayList<Integer> qual = new ArrayList<Integer>();
 	    String seq = "";
 	    //ArrayList<String> BS = new ArrayList<String>();

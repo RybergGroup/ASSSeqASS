@@ -23,6 +23,7 @@ public class Test {
 	int n_seq = 0;
 	ArrayList<ArrayList<String>> inputFiles = new ArrayList<ArrayList<String>>();
 	boolean batch = false;
+	String batchNames[] = {"contig"};
 	////////////////////
 	// read arguments //
 	////////////////////
@@ -173,25 +174,41 @@ public class Test {
 	//////////////////////////////////
 	// Align sequences into contigs //
 	//////////////////////////////////
+	String[] contigNames = null; 
 	for (int b=0; b < sequenceBatches.length; ++b) {
 	    AlignedQ[] addContigs = MSAQ.align(sequenceBatches[b],trim_qual); // Do Multiple Sequence Alignment considering quality scores
 	    if (contigs == null) {
 		contigs = addContigs;
+		contigNames = new String[addContigs.length];
+		for (int i=0; i < addContigs.length; ++ i) {
+		    contigNames[i] = batchNames[b] + "_" + i;
+		    System.err.println(contigNames[i]);
+		}
 	    }
 	    else {
 		AlignedQ[] newContigs = new AlignedQ[contigs.length + addContigs.length];
+		String[] newContigNames = new String[contigNames.length + addContigs.length];
 		System.arraycopy(contigs,0,newContigs,0,contigs.length);
-		System.arraycopy(addContigs,0,newContigs,contigs.length,addContigs.length);
+		System.arraycopy(contigNames,0,newContigNames,0,contigNames.length);
+		for (int i=0; i < contigs.length; ++i) {
+		    newContigs[contigs.length+i] = addContigs[i];
+		    if (b > batchNames.length) newContigNames[i] = batchNames[batchNames.length-1] + "_" + (b-batchNames.length);
+		    else newContigNames[i] = batchNames[b];
+		    newContigNames[i] += "_" + i;
+		    System.err.println(contigNames[i]);
+		}
+		//System.arraycopy(addContigs,0,newContigs,contigs.length,addContigs.length);
 		contigs = newContigs;
+		contigNames = newContigNames;
 	    }
 	}
 	//////////////////
 	// Print output //
 	//////////////////
-     	if (output_format.equals("ACE")) { ContigWriter.writeACE(contigs,System.out); }
-	else if (output_format.equals("FASTA")) { ContigWriter.writeFASTA(contigs,System.out); }
-	else if (output_format.equals("FASTQ")) { ContigWriter.writeFASTQ(contigs,System.out); }
-	else if (output_format.equals("MFASTA")) { ContigWriter.writeMFASTA(contigs,System.out); }
-	else if (output_format.equals("MFASTQ")) { ContigWriter.writeMFASTQ(contigs,System.out); }
+     	if (output_format.equals("ACE")) { ContigWriter.writeACE(contigs, contigNames, System.out); }
+	else if (output_format.equals("FASTA")) { ContigWriter.writeFASTA(contigs, contigNames, System.out); }
+	else if (output_format.equals("FASTQ")) { ContigWriter.writeFASTQ(contigs, contigNames, System.out); }
+	else if (output_format.equals("MFASTA")) { ContigWriter.writeMFASTA(contigs, contigNames, System.out); }
+	else if (output_format.equals("MFASTQ")) { ContigWriter.writeMFASTQ(contigs, contigNames, System.out); }
     }
 }
