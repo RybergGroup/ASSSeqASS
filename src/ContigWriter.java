@@ -117,7 +117,7 @@ public class ContigWriter {
 	    }
 	}
     }
-    public static void writeACE (AlignedQ[] contigs, String[] contigNames, PrintStream out) throws Exception {
+    public static void writeACE (AlignedQ[] contigs, String[] contigNames, boolean writeReadFileAsABI, PrintStream out) throws Exception {
 	if (contigs == null) return;
 	if (contigNames == null) {
 	    contigNames = new String[contigs.length];
@@ -138,7 +138,6 @@ public class ContigWriter {
 	    out.print(" " + i.length() + " " + i.nSeq() + " ");
 	    ArrayList<Integer> qual = new ArrayList<Integer>();
 	    String seq = "";
-	    //ArrayList<String> BS = new ArrayList<String>();
 	    String oneline = "";
 	    int prevseq = -1;
 	    for (int j=0; j < i.length(); ++j) {
@@ -182,7 +181,15 @@ public class ContigWriter {
 		if ((pos+1)%50 > 0) System.out.println("");
 		out.println("");
 		out.println("QA " + (i.getStartInSeq(j)+1) + " " + (i.getEndInAlignment(j)-i.getStartInAlignment(j)+i.getStartInSeq(j)) + " " + (i.getStartInSeq(j)+1) + " " + (i.getEndInAlignment(j)-i.getStartInAlignment(j)+i.getStartInSeq(j)));
-		out.println("DS FASTQ_FILE: " + i.getSequence(j).getFileName());
+		if (writeReadFileAsABI) {
+		    String ABIname = i.getSequence(j).getFileName();
+		    int index = ABIname.length()-1;
+		    while (Character.isDigit(ABIname.charAt(index))) --index;
+		    while (ABIname.charAt(index) == '.') --index;
+		    while (ABIname.charAt(index) != '.') --index;
+		    out.println("DS FASTQ_FILE: " + ABIname.substring(0,index) + ".ab1");
+		}
+	       	else out.println("DS FASTQ_FILE: " + i.getSequence(j).getFileName());
 		out.println("");
 	    }
 	}
